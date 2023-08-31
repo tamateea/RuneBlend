@@ -4,7 +4,7 @@ import os
 bl_info = {
     "name":         "RuneBlend",
     "author":       "Tamatea",
-    "blender": (3, 0, 0),
+    "blender": (3, 4, 1),
     "version": (1, 0, 0),
     "location":     "File > Import-Export",
     "description":  "Import Runescape data format",
