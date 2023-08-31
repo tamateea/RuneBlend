@@ -23,7 +23,7 @@ To import custom plugins into Blender:
 4. Enable the installed plugin by checking the checkbox next to its name.
 5. Save the preferences to retain the plugin's activation.
 
-**Note:** Back face culling is automatically applied by default to ensure optimal rendering.
+**Note:** Back face culling is applied by default.
 
 
 ---
