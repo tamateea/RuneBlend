@@ -5,14 +5,12 @@ This project aims to enable Runescape content creators to import 3D assets from 
 
 ## Support
 
----
 For support using this plugin, feedback, suggestions please join our discord server.
 [![Click to Join](https://i.imgur.com/9dYHk5P.png)](https://discord.gg/Fj7kaZJa9U)
 
 
 ## Features
 
----
 
 - **Format Compatibility:** The plugin supports all OSRS formats and baisc support for RS3 models.
 - **Accurate Color Representation:** The plugin loads the color table directly from the game as a texture, ensuring that the imported models retain the exact colors found in Runescape.
@@ -30,22 +28,18 @@ For support using this plugin, feedback, suggestions please join our discord ser
 
 ## Downloading
 
----
 
 Go to [releases](https://github.com/tamateea/RuneBlend/releases) section to download the zipped addon.
 
 
 ## Usage Instructions
 
----
 
 1. **Installation:** Download the plugin and install it in Blender following the standard plugin installation process.
 2. **Importing Models:** Select file->import->Runescape Model (.dat)
 2. **Importing Skeletons:** Select file->import->Runescape Skeleton (.dat)
 
 ## Installing Plugins in Blender
-
----
 
 
 To import custom plugins into Blender:
@@ -59,7 +53,6 @@ To import custom plugins into Blender:
 
 ## Contributing
 
----
 
 Feel free to contribute to this project by making a pull request, join the discord if you'd like to discuss development.
 
