@@ -12,7 +12,7 @@ For support using this plugin, feedback, suggestions please join our discord ser
 ## Features
 
 
-- **Format Compatibility:** The plugin supports all OSRS formats and baisc support for RS3 models.
+- **Format Compatibility:** The plugin supports all OSRS formats and basic support for RS3 models.
 - **Accurate Color Representation:** The plugin loads the color table directly from the game as a texture, ensuring that the imported models retain the exact colors found in Runescape.
 - **Transparency Support:** The plugin handles transparent faces by generating a new material with applied transparency using the palette image.
 - **Vertex Grouping:** For models made using their in-house Jaged tool editor, the plugin automatically creates vertex groups.
