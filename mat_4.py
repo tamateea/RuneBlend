@@ -49,24 +49,27 @@ class Matrix4f:
 
     # euler angle yxz
     def get_euler_angles_yxz_inverse(self):
-        out = np.array([-math.asin(self.m[6]), 0.0, 0.0])
-        cosRotationX = math.cos(out[0])
-        if abs(cosRotationX) > 0.005:
+        eulerAngles = [0.0, 0.0, 0.0]
+        eulerAngles[0] = -math.asin(self.m[6])
+        var2 = math.cos(eulerAngles[0])
+
+        if abs(var2) > 0.005:
             var4 = self.m[2]
             var6 = self.m[10]
             var8 = self.m[4]
             var10 = self.m[5]
-            out[1] = math.atan2(var4, var6)
-            out[2] = math.atan2(var8, var10)
+            eulerAngles[1] = math.atan2(var4, var6)
+            eulerAngles[2] = math.atan2(var8, var10)
         else:
             var4 = self.m[1]
             var6 = self.m[0]
             if self.m[6] < 0.0:
-                out[1] = math.atan2(var4, var6)
+                eulerAngles[1] = math.atan2(var4, var6)
             else:
-                out[1] = -math.atan2(var4, var6)
-            out[2] = 0.0
-        return out
+                eulerAngles[1] = -math.atan2(var4, var6)
+            eulerAngles[2] = 0.0
+        return eulerAngles
+
 
     def identity(self):
         self.m = np.array([1.0, 0.0, 0.0, 0.0,
@@ -250,9 +253,17 @@ class Matrix4f:
         self.set(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33)
 
     def get_scale(self):
-        return Vector3f(self.m[0], self.m[5], self.m[10])
-    def get_scale_blender(self):
-        return mathutils.Vector((self.m[0], self.m[5], self.m[10]))
+        x = Vector3f(self.m[0], self.m[1], self.m[2])
+        y = Vector3f(self.m[4], self.m[5], self.m[6])
+        z = Vector3f(self.m[8], self.m[9], self.m[10])
+        return Vector3f(x.length(), y.length(), z.length())
+
+    def decompose(self):
+        translation = self.get_translation().multiply(0.0078125)
+        euler_inverse = self.get_euler_angles_yxz_inverse()
+        eulerAnglesYXZ = Vector3f(euler_inverse[0], euler_inverse[1], euler_inverse[2])
+        scale = self.get_scale()
+        return translation, eulerAnglesYXZ, scale
 
     def to_array(self):
         return self.m.tolist()

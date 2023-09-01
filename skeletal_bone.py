@@ -13,9 +13,9 @@ class SkeletalBone:
         self.model_matrices = []
         self.inverted_model_matrices = []
         self.anim_matrix = Matrix4f()
-        self.update_anim_model_matrix = True
+        self.update_anim_model_matrix = False
         self.anim_matrix = Matrix4f()
-        self.update_final_matrix = True
+        self.update_final_matrix = False
         self.final_matrix = Matrix4f()
         self.rotations = []
         self.translations = []
@@ -24,11 +24,10 @@ class SkeletalBone:
 
     def decode(self, pose_id, compact_matrix, buffer):
         self.parent_id = buffer.read_short()
-        self.local_matrices = [Matrix4f() for _ in range(pose_id)]
-        self.model_matrices = [Matrix4f() for _ in range(len(self.local_matrices))]
-        self.inverted_model_matrices = [Matrix4f() for _ in range(len(self.local_matrices))]
+        self.local_matrices = [None for _ in range(pose_id)]
+        self.model_matrices = [None for _ in range(len(self.local_matrices))]
+        self.inverted_model_matrices = [None for _ in range(len(self.local_matrices))]
         self.unused = [[0.0] * 3 for _ in range(len(self.local_matrices))]
-
         for index in range(len(self.local_matrices)):
             local_matrix = Matrix4f()
             self.read_mat_4(buffer, local_matrix, compact_matrix)
@@ -37,7 +36,6 @@ class SkeletalBone:
             self.unused[index][1] = buffer.read_float()
             self.unused[index][2] = buffer.read_float()
 
-        self.extract_transformations()
 
     def read_mat_4(self, buffer, matrix, compact_matrix):
         if compact_matrix:
@@ -57,22 +55,10 @@ class SkeletalBone:
             local_matrix = self.get_local_matrix(pose)
             inverted_local_matrix.copy(local_matrix)
             inverted_local_matrix.invert()
-
             self.rotations.append(inverted_local_matrix.get_euler_angles_yxz_inverse())
-            local_translation = [local_matrix.m[12], local_matrix.m[13], local_matrix.m[14]]
-            self.translations.append(local_translation)
+            self.translations.append(local_matrix.get_translation())
             self.scalings.append(local_matrix.get_scale())
-
-            # So we can the original location of the bone
-            self.local_translation = local_matrix.get_translation()
         inverted_local_matrix.release()
-
-    # bones original position added to it's parents
-    def get_local_translation(self):
-        if self.parent:
-            return self.parent.get_local_translation().add(self.local_translation)
-        return self.local_translation
-
 
     def get_local_matrix(self, bone_index):
         return self.local_matrices[bone_index]
@@ -119,13 +105,10 @@ class SkeletalBone:
     def get_rotation(self, pose_id):
         return self.rotations[pose_id]
 
-    def get_euler(self, pose_id):
-        angle = self.rotations[pose_id]
-        return Euler((angle[0], angle[1], angle[2]), 'YXZ')
 
     def get_translation(self, pose_id):
         return self.translations[pose_id]
 
-    def get_scale(self, pose_id):
+    def get_scaling(self, pose_id):
         return self.scalings[pose_id]
 

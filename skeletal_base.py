@@ -9,8 +9,9 @@ class SkeletalBase:
 
         for index in range(len(self.bones)):
             bone = SkeletalBone()
-            bone.index = index
+            bone.id = index
             bone.decode(self.pose_count, False, buffer)
+            bone.extract_transformations()
             self.bones[index] = bone
         self.link_bones()
 

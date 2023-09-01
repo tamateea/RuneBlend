@@ -1,3 +1,5 @@
+import math
+
 import bpy
 import mathutils
 from runeblend.base import Base
@@ -33,15 +35,17 @@ def read_skeleton(filepath):
         print("Error: Failed to read file.")
 
 
+def to_vector(data):
+    return mathutils.Vector((data.x, -data.z, data.y))
+
+def to_euler(data):
+    return mathutils.Euler((math.radians(data.x), math.radians(data.y), math.radians(data.z)), "XYZ")
+
+
 def create_armature(base, obj):
-
-    bones = base.skeletal_base.bones
-
     tmp_rig_name = "runescape_rig"
-
     armature = bpy.data.armatures.new("armature")
     armature.name = "imported_armature"
-    # armature.display_type = "STICK"
 
     # create the object and link to the scene
     new_rig = bpy.data.objects.new(tmp_rig_name, armature)
@@ -49,51 +53,39 @@ def create_armature(base, obj):
     bpy.context.view_layer.objects.active = new_rig
     new_rig.show_in_front = True
     new_rig.select_set(state=True)
-
-
     bpy.ops.object.mode_set(mode='EDIT')
 
+    bones = base.skeletal_base.bones
 
 
     bone_list = [0] * len(bones)
 
-
-    for bone_data in bones:
-
-        index = bone_data.index
-        name = f"Bone_{index}"
-
-
+    for bone in bones:
+        bone_id = bone.id
+        loc, rot, scale = bone.get_model_matrix(0).decompose()
+        name = f"Bone_{bone_id}"
         new_bone = armature.edit_bones.new(name)
-        bone_list[index] = new_bone  # Store bone by name
-        pos = bone_data.get_local_translation().to_blender_vector()
+        new_bone.use_inherit_rotation = False
+        new_bone.use_connect = True
+        bone_list[bone_id] = new_bone
+        new_bone.tail = to_vector(loc)
+        new_bone.head = to_vector(loc)
 
+    for bone in bones:
+        bone_id = bone.id
+        parent_id = bone.parent_id
+        edit_bone = bone_list[bone_id]
 
-        new_bone.head = pos
-        new_bone.tail = pos
-        new_bone.use_inherit_rotation = True
-
-
-    for bone_data in bones:
-        bone = bone_list[bone_data.index]
-
-        # Set parent bone if applicable
-        if bone_data.parent_id >= 0:
-            parent_bone = bone_list[bone_data.parent_id]
-            bone.parent = parent_bone
-            bone.head = parent_bone.tail
+        if parent_id >= 0:
+            edit_bone.parent = bone_list[parent_id]
+            edit_bone.head = bone_list[parent_id].tail
         else:
-            bone.name = f"bone_{bone_data.index}_root"
-            bone.tail += mathutils.Vector((0, 1, 0))
-            bone.use_connect = False
+            edit_bone.tail = edit_bone.head + mathutils.Vector((0, 1, 0))
+            edit_bone.use_connect = False
 
-        # since blender removes bones with no length
-        if bone.length == 0:
-            bone.tail += mathutils.Vector((-1, 0, 0))
+        if edit_bone.length == 0:
+            edit_bone.tail = edit_bone.head + mathutils.Vector((1, 0, 0))
 
-
-    bpy.ops.object.mode_set(mode='OBJECT')
-    bpy.context.view_layer.update()
     return new_rig
 
 def load(self):
