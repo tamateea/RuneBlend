@@ -22,12 +22,7 @@ def read_skeleton(filepath):
 
         if obj and obj.type == 'MESH':
             armature_obj = create_armature(base, obj)
-            mesh_obj = obj
-            mesh_obj.parent = armature_obj
-            mesh_obj.parent_type = 'OBJECT'
-            armature_modifier = mesh_obj.modifiers.new(name='Armature', type='ARMATURE')
-            armature_modifier.object = armature_obj
-            armature_modifier.use_vertex_groups = True  # This ensures that pre-defined vertex groups are used
+
 
 
         return base
@@ -38,12 +33,8 @@ def read_skeleton(filepath):
 def to_vector(data):
     return mathutils.Vector((data.x, -data.z, data.y))
 
-def to_euler(data):
-    return mathutils.Euler((math.radians(data.x), math.radians(data.y), math.radians(data.z)), "XYZ")
-
-
 def create_armature(base, obj):
-    tmp_rig_name = "runescape_rig"
+    tmp_rig_name = "imported_rig"
     armature = bpy.data.armatures.new("armature")
     armature.name = "imported_armature"
 
@@ -62,12 +53,15 @@ def create_armature(base, obj):
 
     for bone in bones:
         bone_id = bone.id
+        #we only need the location of the bones, since the heirarchy has already been calculated
+        #by multiplying bone matrices, so the location expresses it's rotation/scale
         loc, rot, scale = bone.get_model_matrix(0).decompose()
         name = f"Bone_{bone_id}"
         new_bone = armature.edit_bones.new(name)
-        new_bone.use_inherit_rotation = False
-        new_bone.use_connect = True
+        new_bone.use_inherit_rotation = True
+        new_bone.use_connect = False
         bone_list[bone_id] = new_bone
+        # set the head and tail, since this is the only data we have to go by
         new_bone.tail = to_vector(loc)
         new_bone.head = to_vector(loc)
 
@@ -77,16 +71,31 @@ def create_armature(base, obj):
         edit_bone = bone_list[bone_id]
 
         if parent_id >= 0:
+            #set the head of the bone to the parents tail
+            #some of these might need to be changed
             edit_bone.parent = bone_list[parent_id]
             edit_bone.head = bone_list[parent_id].tail
         else:
-            edit_bone.tail = edit_bone.head + mathutils.Vector((0, 1, 0))
+            #this is the parent bone, we need to set offset it's position so it's not deleted
+            edit_bone.head = edit_bone.tail + mathutils.Vector((0.1, 0, 0))
             edit_bone.use_connect = False
 
+        # blender removes bones with a length of 0 so add to it so it's not deleted until we figure out what it does
         if edit_bone.length == 0:
-            edit_bone.tail = edit_bone.head + mathutils.Vector((1, 0, 0))
+            edit_bone.head = edit_bone.tail + mathutils.Vector((0.1, 0, 0))
 
-    return new_rig
+
+    bpy.ops.object.mode_set(mode='POSE')
+    for pose_bone in new_rig.pose.bones:
+        pose_bone.rotation_mode = 'XYZ'
+    bpy.ops.object.mode_set(mode='EDIT')
+    mesh_obj = obj
+    bpy.context.object['base_length'] = base.length
+    mesh_obj.parent = new_rig
+    mesh_obj.parent_type = 'OBJECT'
+    armature_modifier = mesh_obj.modifiers.new(name='Armature', type='ARMATURE')
+    armature_modifier.object = new_rig
+    armature_modifier.use_vertex_groups = True  # This ensures that pre-defined vertex groups are used
 
 def load(self):
     read_skeleton(self.filepath)

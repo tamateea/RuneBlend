@@ -193,13 +193,13 @@ class RunescapeMesh:
             position_flag = buffer_indices.read_unsigned_byte()
             dx = dy = dz = 0
             if position_flag & 1:
-                dx = buffer_face_properties.readSignedSmart()
+                dx = buffer_face_properties.readSignedSmart
 
             if position_flag & 2:
-                dy = buffer_face_priorities.readSignedSmart()
+                dy = buffer_face_priorities.readSignedSmart
 
             if position_flag & 4:
-                dz = buffer_face_alphas.readSignedSmart()
+                dz = buffer_face_alphas.readSignedSmart
             self.vertices_x[vertex] = x + dx
             self.vertices_y[vertex] = y + dy
             self.vertices_z[vertex] = z + dz
@@ -236,25 +236,25 @@ class RunescapeMesh:
         for face in range(face_count):
             opcode = buffer_face_properties.read_unsigned_byte()
             if opcode == 1:
-                a = buffer_indices.readSignedSmart() + last
+                a = buffer_indices.readSignedSmart + last
                 last = a
-                b = buffer_indices.readSignedSmart() + last
+                b = buffer_indices.readSignedSmart + last
                 last = b
-                c = buffer_indices.readSignedSmart() + last
+                c = buffer_indices.readSignedSmart + last
                 last = c
                 self.face_indices_a[face] = a
                 self.face_indices_b[face] = b
                 self.face_indices_c[face] = c
             if opcode == 2:
                 b = c
-                c = buffer_indices.readSignedSmart() + last
+                c = buffer_indices.readSignedSmart + last
                 last = c
                 self.face_indices_a[face] = a
                 self.face_indices_b[face] = b
                 self.face_indices_c[face] = c
             if opcode == 3:
                 a = c
-                c = buffer_indices.readSignedSmart() + last
+                c = buffer_indices.readSignedSmart + last
                 last = c
                 self.face_indices_a[face] = a
                 self.face_indices_b[face] = b
@@ -263,7 +263,7 @@ class RunescapeMesh:
                 temp = a
                 a = b
                 b = temp
-                c = buffer_indices.readSignedSmart() + last
+                c = buffer_indices.readSignedSmart + last
                 last = c
                 self.face_indices_a[face] = a
                 self.face_indices_b[face] = b
@@ -395,13 +395,13 @@ class RunescapeMesh:
             position_flag = buffer_indices.read_unsigned_byte()
             dx = dy = dz = 0
             if position_flag & 1:
-                dx = buffer_face_properties.readSignedSmart()
+                dx = buffer_face_properties.readSignedSmart
 
             if position_flag & 2:
-                dy = buffer_face_priorities.readSignedSmart()
+                dy = buffer_face_priorities.readSignedSmart
 
             if position_flag & 4:
-                dz = buffer_face_alphas.readSignedSmart()
+                dz = buffer_face_alphas.readSignedSmart
 
             self.vertices_x[vertex] = x + dx
             self.vertices_y[vertex] = y + dy
@@ -471,9 +471,9 @@ class RunescapeMesh:
             orientation = buffer_face_properties.read_unsigned_byte()
 
             if orientation == 1:
-                a = buffer_indices.readSignedSmart() + last
-                b = buffer_indices.readSignedSmart() + a
-                c = buffer_indices.readSignedSmart() + b
+                a = buffer_indices.readSignedSmart + last
+                b = buffer_indices.readSignedSmart + a
+                c = buffer_indices.readSignedSmart + b
                 last = c
                 self.face_indices_a[face] = a
                 self.face_indices_b[face] = b
@@ -481,7 +481,7 @@ class RunescapeMesh:
 
             if orientation == 2:
                 b = c
-                c = buffer_indices.readSignedSmart() + last
+                c = buffer_indices.readSignedSmart + last
                 last = c
                 self.face_indices_a[face] = a
                 self.face_indices_b[face] = b
@@ -489,7 +489,7 @@ class RunescapeMesh:
 
             if orientation == 3:
                 a = c
-                c = buffer_indices.readSignedSmart() + last
+                c = buffer_indices.readSignedSmart + last
                 last = c
                 self.face_indices_a[face] = a
                 self.face_indices_b[face] = b
@@ -499,7 +499,7 @@ class RunescapeMesh:
                 tmp = a
                 a = b
                 b = tmp
-                c = buffer_indices.readSignedSmart() + last
+                c = buffer_indices.readSignedSmart + last
                 last = c
                 self.face_indices_a[face] = a
                 self.face_indices_b[face] = b
@@ -697,13 +697,13 @@ class RunescapeMesh:
             position_flag = buffer_indices.read_unsigned_byte()
             dx = dy = dz = 0
             if position_flag & 1:
-                dx = buffer_face_properties.readSignedSmart()
+                dx = buffer_face_properties.readSignedSmart
 
             if position_flag & 2:
-                dy = buffer_face_priorities.readSignedSmart()
+                dy = buffer_face_priorities.readSignedSmart
 
             if position_flag & 4:
-                dz = buffer_face_alphas.readSignedSmart()
+                dz = buffer_face_alphas.readSignedSmart
             self.vertices_x[vertex] = x + dx
             self.vertices_y[vertex] = y + dy
             self.vertices_z[vertex] = z + dz
@@ -744,25 +744,25 @@ class RunescapeMesh:
         for face in range(face_count):
             opcode = buffer_face_properties.read_unsigned_byte()
             if opcode == 1:
-                a = buffer_indices.readSignedSmart() + last
+                a = buffer_indices.readSignedSmart + last
                 last = a
-                b = buffer_indices.readSignedSmart() + last
+                b = buffer_indices.readSignedSmart + last
                 last = b
-                c = buffer_indices.readSignedSmart() + last
+                c = buffer_indices.readSignedSmart + last
                 last = c
                 self.face_indices_a[face] = a
                 self.face_indices_b[face] = b
                 self.face_indices_c[face] = c
             if opcode == 2:
                 b = c
-                c = buffer_indices.readSignedSmart() + last
+                c = buffer_indices.readSignedSmart + last
                 last = c
                 self.face_indices_a[face] = a
                 self.face_indices_b[face] = b
                 self.face_indices_c[face] = c
             if opcode == 3:
                 a = c
-                c = buffer_indices.readSignedSmart() + last
+                c = buffer_indices.readSignedSmart + last
                 last = c
                 self.face_indices_a[face] = a
                 self.face_indices_b[face] = b
@@ -771,7 +771,7 @@ class RunescapeMesh:
                 temp = a
                 a = b
                 b = temp
-                c = buffer_indices.readSignedSmart() + last
+                c = buffer_indices.readSignedSmart + last
                 last = c
                 self.face_indices_a[face] = a
                 self.face_indices_b[face] = b
@@ -962,13 +962,13 @@ class RunescapeMesh:
             position_flag = buffer_indices.read_unsigned_byte()
             dx = dy = dz = 0
             if position_flag & 1:
-                dx = buffer_face_properties.readSignedSmart()
+                dx = buffer_face_properties.readSignedSmart
 
             if position_flag & 2:
-                dy = buffer_face_priorities.readSignedSmart()
+                dy = buffer_face_priorities.readSignedSmart
 
             if position_flag & 4:
-                dz = buffer_face_alphas.readSignedSmart()
+                dz = buffer_face_alphas.readSignedSmart
             self.vertices_x[vertex] = x + dx
             self.vertices_y[vertex] = y + dy
             self.vertices_z[vertex] = z + dz
@@ -1026,9 +1026,9 @@ class RunescapeMesh:
             orientation = buffer_face_properties.read_unsigned_byte()
 
             if orientation == 1:
-                a = buffer_indices.readSignedSmart() + last
-                b = buffer_indices.readSignedSmart() + a
-                c = buffer_indices.readSignedSmart() + b
+                a = buffer_indices.readSignedSmart + last
+                b = buffer_indices.readSignedSmart + a
+                c = buffer_indices.readSignedSmart + b
                 last = c
                 self.face_indices_a[face] = a
                 self.face_indices_b[face] = b
@@ -1036,7 +1036,7 @@ class RunescapeMesh:
 
             if orientation == 2:
                 b = c
-                c = buffer_indices.readSignedSmart() + last
+                c = buffer_indices.readSignedSmart + last
                 last = c
                 self.face_indices_a[face] = a
                 self.face_indices_b[face] = b
@@ -1044,7 +1044,7 @@ class RunescapeMesh:
 
             if orientation == 3:
                 a = c
-                c = buffer_indices.readSignedSmart() + last
+                c = buffer_indices.readSignedSmart + last
                 last = c
                 self.face_indices_a[face] = a
                 self.face_indices_b[face] = b
@@ -1054,7 +1054,7 @@ class RunescapeMesh:
                 temp = a
                 a = b
                 b = temp
-                c = buffer_indices.readSignedSmart() + last
+                c = buffer_indices.readSignedSmart + last
                 last = c
                 self.face_indices_a[face] = a
                 self.face_indices_b[face] = b
@@ -1348,11 +1348,11 @@ class RunescapeMesh:
             dy = 0
             dz = 0
             if position_flag & 0x1 != 0:
-                dx = buffer_scaled_pmn.readSignedSmart()
+                dx = buffer_scaled_pmn.readSignedSmart
             if position_flag & 0x2 != 0:
-                dy = buffer_texture_scale.readSignedSmart()
+                dy = buffer_texture_scale.readSignedSmart
             if position_flag & 0x4 != 0:
-                dz = buffer_texture_rotation.readSignedSmart()
+                dz = buffer_texture_rotation.readSignedSmart
 
             self.vertices_x[vertex] = x + dx
             self.vertices_y[vertex] = y + dy
@@ -1482,9 +1482,9 @@ class RunescapeMesh:
             flag = buffer_flag.read_unsigned_byte()
             orientation = flag & 0x7
             if orientation == 1:
-                self.face_indices_a[face] = a = buffer_face_indices.readSignedSmart() + last
-                self.face_indices_b[face] = b = buffer_face_indices.readSignedSmart() + a
-                self.face_indices_c[face] = c = buffer_face_indices.readSignedSmart() + b
+                self.face_indices_a[face] = a = buffer_face_indices.readSignedSmart + last
+                self.face_indices_b[face] = b = buffer_face_indices.readSignedSmart + a
+                self.face_indices_c[face] = c = buffer_face_indices.readSignedSmart + b
                 last = c
                 if a > self.highest_vertex:
                     self.highest_vertex = a
@@ -1494,7 +1494,7 @@ class RunescapeMesh:
                     self.highest_vertex = c
             if orientation == 2:
                 b = c
-                c = buffer_face_indices.readSignedSmart() + last
+                c = buffer_face_indices.readSignedSmart + last
                 last = c
                 self.face_indices_a[face] = a
                 self.face_indices_b[face] = b
@@ -1503,7 +1503,7 @@ class RunescapeMesh:
                     self.highest_vertex = c
             if orientation == 3:
                 a = c
-                c = buffer_face_indices.readSignedSmart() + last
+                c = buffer_face_indices.readSignedSmart + last
                 last = c
                 self.face_indices_a[face] = a
                 self.face_indices_b[face] = b
@@ -1514,7 +1514,7 @@ class RunescapeMesh:
                 tmp = a
                 a = b
                 b = tmp
-                c = buffer_face_indices.readSignedSmart() + last
+                c = buffer_face_indices.readSignedSmart + last
                 last = c
                 self.face_indices_a[face] = a
                 self.face_indices_b[face] = tmp

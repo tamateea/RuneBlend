@@ -56,6 +56,14 @@ class ByteBuffer:
         return value
 
 
+    def read_smart_2(self):
+        temp = self.data[self.position] & 0xff
+        if temp >= 0:
+            value = self.read_unsigned_byte() - 0x40
+        else:
+            value = self.read_unsigned_short() - 0xc000
+        return value
+
     def readUnsignedSmart(self):
         temp = self.data[self.position] & 0xff
         if temp < 128:
@@ -65,6 +73,7 @@ class ByteBuffer:
         return value
 
 
+    @property
     def readSignedSmart(self):
         temp = self.data[self.position] & 0xff
         if temp < 128:
