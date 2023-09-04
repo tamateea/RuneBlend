@@ -65,7 +65,7 @@ class SkeletalBone:
 
     def get_model_matrix(self, pose_id):
         if self.model_matrices[pose_id] is None:
-            self.model_matrices[pose_id] = self.get_local_matrix(pose_id)
+            self.model_matrices[pose_id] = Matrix4f.from_arr(self.local_matrices[pose_id].m)
             if self.parent:
                 self.model_matrices[pose_id].multiply(self.parent.get_model_matrix(pose_id))
             else:
