@@ -41,6 +41,7 @@ def create_animation(data):
     action = bpy.data.actions.new("imported_animation")
 
     bpy.context.scene.frame_set(1)
+    animation_data = {}
     for i in range(curve_count):
         transform_type = get_transform_type_for_id(buffer.read_unsigned_byte())
         bone_index = buffer.readSignedSmart
@@ -48,47 +49,64 @@ def create_animation(data):
         curve = Curve(i)
         curve.decode(buffer)
 
-        if transform_type == SkeletalTransformType.BONE:
-            curves = bone_curves
-        else:
-            curves = face_curves  # alpha curves
 
-        if curves[bone_index] is None:
-            curves[bone_index] = [0] * get_curve_count(transform_type)
+        if bone_index not in animation_data:
+            animation_data[bone_index] = {}
 
-        index = get_curve_index(curve_type)
-        curves[bone_index][index] = curve
+        if transform_type not in animation_data[bone_index]:
+            animation_data[bone_index][transform_type] = {}
 
+        animation_data[bone_index][transform_type][curve_type] = curve
+
+    # Iterate through bones and apply constraints in the correct order
+    length = bpy.context.object['base_length']
+    has_alpha_transform = False  # not used yet
+    rig = bpy.data.objects["imported_rig"]
+    action = bpy.data.actions.new("imported_animation")
+    tsr_order = [
+        CurveType.ROTATE_Z, CurveType.ROTATE_X, CurveType.ROTATE_Y,
+        CurveType.SCALE_Z, CurveType.SCALE_X, CurveType.SCALE_Y,
+        CurveType.TRANSLATE_Z, CurveType.TRANSLATE_X, CurveType.TRANSLATE_Y,
+                 CurveType.TRANSPARENCY]
+
+    for bone_index in range(len(animation_data)):
         bone_name = f"Bone_{bone_index}"
-        transformation_type = curve_type.get_transformation_type()
-        axis_idx = curve_type.get_axis_index()
-        data_path = f'pose.bones["{bone_name}"].{transformation_type}'
-        if transformation_type != SkeletalTransformType.ALPHA:
-            f_curve = action.fcurves.new(data_path, index=axis_idx, action_group=bone_name)
-            for p in curve.points:
-                frame = p.x
-                value = p.y
+        bone = armature.bones.get(bone_name)
+        if bone is None:
+            print(f"none bone: {bone_index}")
+            continue
+        if not bone.parent:
+            print("skip parent")
+            continue
+        for transform_type in animation_data.get(bone_index, {}).keys():
+            for curve_type in [ct for ct in tsr_order if
+                               ct in animation_data.get(bone_index, {}).get(transform_type, {})]:
+                transformation_type = curve_type.get_transformation_type()
+                axis_idx = curve_type.get_axis_index()
+                data_path = f'pose.bones["{bone_name}"].{transformation_type}'
+                print(f"curve: {data_path}[{axis_idx}]")
+                # Create a new FCurve for this bone and curve
+                f_curve = action.fcurves.new(data_path, index=axis_idx, action_group=bone_name)
+                curve = animation_data[bone_index][transform_type][curve_type]
+                for p in curve.points:
+                    frame = p.x
+                    value = p.y
 
-                if curve_type.is_transformation():
-                    value *= 0.0078125
-
-                if curve_type.is_scale():
-                    print(f"scale value:{value}")
+                    if curve_type.is_transformation():
+                        value *= 0.0078125
 
 
-                if curve_type is CurveType.TRANSLATE_Z:
-                    value = -value
+                    if curve_type is CurveType.TRANSLATE_Z:
+                        value = -value
 
+                    if curve_type is CurveType.ROTATE_Z:
+                        value = -value
 
-                if curve_type is CurveType.ROTATE_Z:
-                    value = -value
+                    keyframe = f_curve.keyframe_points.insert(frame, value, options={'FAST'})
+                    keyframe.interpolation = 'BEZIER'
 
-                print(f"{data_path} ")
-                keyframe = f_curve.keyframe_points.insert(frame, value, options={'FAST'})
-                keyframe.interpolation = 'LINEAR'
-
-            if transform_type == SkeletalTransformType.ALPHA:
-                has_alpha_transform = True
+                if transform_type == SkeletalTransformType.ALPHA:
+                    has_alpha_transform = True
 
     bpy.context.scene.frame_start = start_frame
     bpy.context.scene.frame_end = end_frame
@@ -181,6 +199,7 @@ class CurveType(Enum):
     TYPE_14 = 14
     TYPE_15 = 15
     TRANSPARENCY = 16
+
 
     def get_transformation_type(self):
         transformation_types = [
