@@ -84,7 +84,7 @@ class Materials:
         principled_bsdf.inputs['Roughness'].default_value = 1.0
         material.use_backface_culling = True
         material.blend_method = 'BLEND'
-        alpha = alpha / 255
+        alpha = 1.0 - (alpha / 255)
         principled_bsdf.inputs['Alpha'].default_value = alpha
 
         material.node_tree.links.new(texture_node.outputs["Color"], principled_bsdf.inputs["Base Color"])
