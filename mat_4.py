@@ -4,6 +4,10 @@ from runeblend.vec_3 import Vector3f
 import mathutils
 
 
+
+######################################################
+# todo - create a conversion matix, remove this and use blenders matrix class
+######################################################
 class Matrix4f:
     pool = [None] * 100
     pool_limit = 100

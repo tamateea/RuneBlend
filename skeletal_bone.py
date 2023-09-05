@@ -2,7 +2,12 @@ from runeblend.mat_4 import Matrix4f
 from runeblend.vec_3 import Vector3f
 from mathutils import Euler
 
-
+###########################################
+# Majority of data here is not used, and has only been left as a reference
+# local matrices is the only one we need for multiplying it with it's parent bones
+# to get it's world-space position. In future most of this can be removed when we
+# use the actual blender Matrix class
+###########################################
 class SkeletalBone:
     def __init__(self):
         self.parent_id = 0
@@ -32,6 +37,12 @@ class SkeletalBone:
             local_matrix = Matrix4f()
             self.read_mat_4(buffer, local_matrix, compact_matrix)
             self.local_matrices[index] = local_matrix
+
+            # These values are never used in the actual game engine, they're usually extremely
+            # high or extremely small values, and always the same for every bone within a skeleton
+            # But will always have a different value per skeleton. I suspect these hold additional data
+            # that is used by runescapes internal tooling, and perhaps have some logical operations done on them
+            # with their parent/local bone id to get something more meaningful?
             self.unused[index][0] = buffer.read_float()
             self.unused[index][1] = buffer.read_float()
             self.unused[index][2] = buffer.read_float()
@@ -44,6 +55,7 @@ class SkeletalBone:
             for index in range(16):
                 matrix.m[index] = buffer.read_float()
 
+    # this isn't really needed
     def extract_transformations(self):
         pose_count = len(self.local_matrices)
         self.rotations = []

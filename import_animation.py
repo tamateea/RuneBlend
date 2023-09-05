@@ -6,6 +6,18 @@ import bpy
 from enum import Enum
 
 
+# ################################################################
+# There is a bunch of data read here to-do with interpolation.
+# But none of it is really utilized inside the actual game engine
+# Despite it having code for interpolating curves, it appears all curve
+# data has been pre-processsed to bake the interpolation so all keyframes
+# are just interpolated linearly.
+#
+# For a full look at how this system works stand-alone check:
+# https://github.com/dennisdev/rs-map-viewer/blob/master/src/rs/model/skeletal/
+# ################################################################
+
+
 def load(self):
     read_animation(self.filepath)
     return {"FINISHED"}
@@ -26,14 +38,21 @@ def create_animation(data):
     ob = bpy.data.objects["imported_rig"]
     armature = ob.data
     buffer = ByteBuffer(data)
-    version = buffer.read_unsigned_byte()  # not used
-    base_id = buffer.read_unsigned_short()  # not used
-    bone_count = len(armature.bones)  # this will be replaced later
-    start_frame = buffer.read_unsigned_short()  # not used
-    end_frame = buffer.read_unsigned_short()  # not usd
-    pose_id = buffer.read_unsigned_byte()  # not used
+
+    # not used in the game engine or here
+    version = buffer.read_unsigned_byte()
+
+    # not needed here, in the game engine this is just the id
+    # of the skeleton that it needs to use, we already have it loaded though.
+    skeleton_id = buffer.read_unsigned_short()
+
+    bone_count = len(armature.bones)
+    start_frame = buffer.read_unsigned_short()
+    end_frame = buffer.read_unsigned_short()
+
+    # this is always 0 in the game engine
+    pose_id = buffer.read_unsigned_byte()
     curve_count = buffer.read_unsigned_short()
-    bone_curves = [None] * bone_count
     length = bpy.context.object['base_length']
     face_curves = [None] * length  # pre-defined property for alpha transforms
     has_alpha_transform = False  # not used yet
@@ -49,7 +68,6 @@ def create_animation(data):
         curve = Curve(i)
         curve.decode(buffer)
 
-
         if bone_index not in animation_data:
             animation_data[bone_index] = {}
 
@@ -58,29 +76,15 @@ def create_animation(data):
 
         animation_data[bone_index][transform_type][curve_type] = curve
 
-    # Iterate through bones and apply constraints in the correct order
-    length = bpy.context.object['base_length']
-    has_alpha_transform = False  # not used yet
-    rig = bpy.data.objects["imported_rig"]
-    action = bpy.data.actions.new("imported_animation")
-    tsr_order = [
-        CurveType.ROTATE_Z, CurveType.ROTATE_X, CurveType.ROTATE_Y,
-        CurveType.SCALE_Z, CurveType.SCALE_X, CurveType.SCALE_Y,
-        CurveType.TRANSLATE_Z, CurveType.TRANSLATE_X, CurveType.TRANSLATE_Y,
-                 CurveType.TRANSPARENCY]
-
     for bone_index in range(len(animation_data)):
         bone_name = f"Bone_{bone_index}"
         bone = armature.bones.get(bone_name)
         if bone is None:
+            # this will skip over face groups used for alpha anims
             print(f"none bone: {bone_index}")
             continue
-        if not bone.parent:
-            print("skip parent")
-            continue
         for transform_type in animation_data.get(bone_index, {}).keys():
-            for curve_type in [ct for ct in tsr_order if
-                               ct in animation_data.get(bone_index, {}).get(transform_type, {})]:
+            for curve_type in animation_data.get(bone_index, {}).get(transform_type, {}):
                 transformation_type = curve_type.get_transformation_type()
                 axis_idx = curve_type.get_axis_index()
                 data_path = f'pose.bones["{bone_name}"].{transformation_type}'
@@ -92,18 +96,22 @@ def create_animation(data):
                     frame = p.x
                     value = p.y
 
+                    # because runescape is scaled up by 128
                     if curve_type.is_transformation():
                         value *= 0.0078125
 
 
+                    # runescape -Y = up
                     if curve_type is CurveType.TRANSLATE_Z:
                         value = -value
 
                     if curve_type is CurveType.ROTATE_Z:
                         value = -value
 
+                    # there is a keyframe added for almost every frame so we don't need any
+                    # fancy interpolation
                     keyframe = f_curve.keyframe_points.insert(frame, value, options={'FAST'})
-                    keyframe.interpolation = 'BEZIER'
+                    keyframe.interpolation = 'LINEAR'
 
                 if transform_type == SkeletalTransformType.ALPHA:
                     has_alpha_transform = True
@@ -119,7 +127,7 @@ class KeyFramePoint:
         self.x = 0  # this is a frame number
         self.y = 0  # this is the frames value
 
-        # these could be values to do with handles
+        # these values are to do with interpolation i think?
         self.field2 = 0  # start time i think
         self.field3 = 0  # also to do with start time
         self.field4 = 0  # end time
@@ -143,32 +151,23 @@ class Curve:
         self.end_interp_type = None
         self.bool = False
         self.points = []
-        self.start_tick = 0
-        self.end_tick = 0
-        self.values = []
-        self.min_value = 0  # interpolated
-        self.max_value = 0  # interpolated
-        self.no_interp = False
-        self.point_index = 0
-        self.point_index_updated = True
-        self.interp_bool = False
-        self.interp_v0 = 0
-        self.interp_v1 = 0
-        self.interp_v2 = 0
-        self.interp_v3 = 0
-        self.interp_v4 = 0
-        self.interp_v5 = 0
-        self.interp_v6 = 0
-        self.interp_v7 = 0
-        self.interp_v8 = 0
-        self.interp_v9 = 0
+
+
 
     def decode(self, buffer):
         count = buffer.read_unsigned_short()
-        self.type = buffer.read_unsigned_byte()  # ignored
-        self.start_interp_type = get_interp_type_for_id(buffer.read_unsigned_byte())  # ignored
-        self.end_interp_type = get_interp_type_for_id(buffer.read_unsigned_byte())  # ignored
-        self.bool = buffer.read_unsigned_byte() != 0  # not used
+
+        # this variable is never used in the actual game engine
+        self.type = buffer.read_unsigned_byte()
+
+        # this is always TYPE_0 (none)
+        self.start_interp_type = get_interp_type_for_id(buffer.read_unsigned_byte())
+
+        # this is always TYPE_0 (none)
+        self.end_interp_type = get_interp_type_for_id(buffer.read_unsigned_byte())
+
+        # this is always false, has to do with interpolation
+        self.bool = buffer.read_unsigned_byte() != 0
 
         self.points = [KeyFramePoint() for _ in range(count)]
         last_point = None
@@ -200,7 +199,7 @@ class CurveType(Enum):
     TYPE_15 = 15
     TRANSPARENCY = 16
 
-
+    # todo restructure thi a bit better
     def get_transformation_type(self):
         transformation_types = [
             "NONE",
@@ -213,6 +212,7 @@ class CurveType(Enum):
         ]
         return transformation_types[self.value]
 
+    # conversion of the axis index for adding fcurves
     def get_axis_index(self):
         axis_indices = [
             -1,
@@ -250,6 +250,7 @@ def get_curve_index(curve_type):
     return CURVE_INDICES[curve_type.value]
 
 
+# this is always BONE, or ALPHA
 class SkeletalTransformType(Enum):
     TYPE_0 = 0
     BONE = 1

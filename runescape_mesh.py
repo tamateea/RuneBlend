@@ -11,7 +11,7 @@ def to_signed_byte(value):
 class RunescapeMesh:
     def __init__(self):
 
-        # rs3 vars
+        # vars for rs3 models, mostly unused.
         self.texture_scale_x = None
         self.texture_scale_y = None
         self.texture_scale_z = None
