@@ -81,8 +81,10 @@ def create_armature(base, obj):
             edit_bone.use_connect = False
 
         # blender removes bones with a length of 0 so add to it so it's not deleted until we figure out what it does
-        if edit_bone.length == 0:
-            edit_bone.head = edit_bone.tail + mathutils.Vector((0.1, 0, 0))
+        # todo i've commented this out at the moment, because it seems there's always a bone at the bottom of the skeleton
+        # that has a weird rotation on it that flips the whole model.
+        # if edit_bone.length == 0:
+        #     edit_bone.head = edit_bone.tail + mathutils.Vector((0.1, 0, 0))
 
 
     bpy.ops.object.mode_set(mode='POSE')
