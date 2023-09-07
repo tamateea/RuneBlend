@@ -88,13 +88,18 @@ def create_animation(data):
                 transformation_type = curve_type.get_transformation_type()
                 axis_idx = curve_type.get_axis_index()
                 data_path = f'pose.bones["{bone_name}"].{transformation_type}'
-                print(f"curve: {data_path}[{axis_idx}]")
                 # Create a new FCurve for this bone and curve
                 f_curve = action.fcurves.new(data_path, index=axis_idx, action_group=bone_name)
                 curve = animation_data[bone_index][transform_type][curve_type]
                 for p in curve.points:
                     frame = p.x
-                    value = p.y
+                    if curve_type.is_transformation() or curve_type.is_rotation():
+                        value = p.y - p.offset
+                    else:
+                        value = p.y
+
+
+
 
                     # because runescape is scaled up by 128
                     if curve_type.is_transformation():
@@ -124,6 +129,7 @@ def create_animation(data):
 
 class KeyFramePoint:
     def __init__(self):
+        self.offset = 0
         self.x = 0  # this is a frame number
         self.y = 0  # this is the frames value
 
@@ -171,9 +177,15 @@ class Curve:
 
         self.points = [KeyFramePoint() for _ in range(count)]
         last_point = None
+        offset = 0
         for i in range(count):
             keyframe_point = KeyFramePoint()
             keyframe_point.decode(buffer)
+            if i is 0:
+                offset = keyframe_point.y
+            else:
+                keyframe_point.offset = offset
+
             self.points[i] = keyframe_point
             if last_point:
                 last_point.next = keyframe_point
