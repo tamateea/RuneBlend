@@ -153,8 +153,7 @@ def get_hsl_from_coord(u, v):
 
 def get_uv_coordinates(index):
     u = (index % 128) / 128
-    v = 1.0 - (index / 128) / 512
-
+    v = 1.0 - (index / (128 * 512))
     return u, v
 
 
