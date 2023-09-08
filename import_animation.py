@@ -116,7 +116,16 @@ def create_animation(data):
                     # there is a keyframe added for almost every frame so we don't need any
                     # fancy interpolation
                     keyframe = f_curve.keyframe_points.insert(frame, value, options={'FAST'})
-                    keyframe.interpolation = 'LINEAR'
+                    keyframe.interpolation = 'BEZIER'
+                    # Calculate the handles based on your tangent data
+                    tan_in_x = p.tan_in_x
+                    tan_out_x = p.tan_out_x
+                    tan_in_y = p.tan_in_y
+                    tan_out_y = p.tan_out_y
+
+                    # Set the handles
+                    keyframe.handle_left = (frame - tan_in_x, value - tan_in_y)
+                    keyframe.handle_right = (frame + tan_out_x, value + tan_out_y)
 
                 if transform_type == SkeletalTransformType.ALPHA:
                     has_alpha_transform = True
@@ -133,20 +142,20 @@ class KeyFramePoint:
         self.x = 0  # this is a frame number
         self.y = 0  # this is the frames value
 
-        # these values are to do with interpolation i think?
-        self.field2 = 0  # start time i think
-        self.field3 = 0  # also to do with start time
-        self.field4 = 0  # end time
-        self.field5 = 0  # end time i think
+        # handle data
+        self.tan_in_x = 0
+        self.tan_in_y = 0
+        self.tan_out_x = 0
+        self.tan_out_y = 0
         self.next = None
 
     def decode(self, buffer):
         self.x = buffer.read_short()
         self.y = buffer.read_float()
-        self.field2 = buffer.read_float()
-        self.field3 = buffer.read_float()
-        self.field4 = buffer.read_float()
-        self.field5 = buffer.read_float()
+        self.tan_in_x = buffer.read_float()
+        self.tan_in_y = buffer.read_float()
+        self.tan_out_x = buffer.read_float()
+        self.tan_out_y = buffer.read_float()
 
 
 class Curve:
