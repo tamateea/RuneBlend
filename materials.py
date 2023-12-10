@@ -35,7 +35,10 @@ class Materials:
 
         # Create the Principled BSDF shader node
         principled_bsdf = material.node_tree.nodes.new(type='ShaderNodeBsdfPrincipled')
-        principled_bsdf.inputs['Specular'].default_value = 0.0
+        if bpy.app.version < (4, 0, 0):
+            principled_bsdf.inputs['Specular'].default_value = 0.0
+        else:
+            principled_bsdf.inputs['Specular IOR Level'].default_value = 0.0
         principled_bsdf.inputs['Roughness'].default_value = 1.0
         material.use_backface_culling = True
 
@@ -80,7 +83,10 @@ class Materials:
 
         # Create the Principled BSDF shader node
         principled_bsdf = material.node_tree.nodes.new(type='ShaderNodeBsdfPrincipled')
-        principled_bsdf.inputs['Specular'].default_value = 0.0
+        if bpy.app.version < (4, 0, 0):
+            principled_bsdf.inputs['Specular'].default_value = 0.0
+        else:
+            principled_bsdf.inputs['Specular IOR Level'].default_value = 0.0
         principled_bsdf.inputs['Roughness'].default_value = 1.0
         material.use_backface_culling = True
         material.blend_method = 'BLEND'
@@ -127,7 +133,10 @@ class Materials:
 
         # Create the Principled BSDF shader node
         principled_bsdf = material.node_tree.nodes.new(type='ShaderNodeBsdfPrincipled')
-        principled_bsdf.inputs['Specular'].default_value = 0.0
+        if bpy.app.version < (4, 0, 0):
+            principled_bsdf.inputs['Specular'].default_value = 0.0
+        else:
+            principled_bsdf.inputs['Specular IOR Level'].default_value = 0.0
         principled_bsdf.inputs['Roughness'].default_value = 1.0
         material.use_backface_culling = True
         material.blend_method = 'CLIP'
